@@ -138,10 +138,10 @@ def get_flats_stats(path=None) -> dict:
 
 
 if __name__ == "__main__":
-    with open(r'../config.yaml') as f:
+    with open(r'config.yaml') as f:
         paths = yaml.safe_load(f)
 
     df = get_flats_stats(paths['data_path'])
 
-    with open('../json_dir/flats.json', 'w') as f:
+    with open('json_dir/flats.json', 'w') as f:
         json.dump(df, f, ensure_ascii=False)
