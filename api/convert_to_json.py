@@ -1,5 +1,5 @@
 import pandas as pd
-from collections import Counter, OrderedDict
+from collections import Counter
 import sqlite3
 import json
 import yaml
@@ -120,8 +120,8 @@ def get_flats_stats(path=None) -> dict:
     date_last = max(df_flats['date_scraped'])
 
     def dict_counter(col):
-        dict_ = dict(Counter(df_flats[col]))
-        return sorted(dict_.items())
+        print(sorted(dict(Counter(df_flats[col]))))
+        return sorted(dict(Counter(df_flats[col])))
 
     flats_per_location = dict_counter('location')
     scraped_per_day = dict_counter('date_scraped')
