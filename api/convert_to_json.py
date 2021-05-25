@@ -120,7 +120,8 @@ def get_flats_stats(path=None) -> dict:
     date_last = max(df_flats['date_scraped'])
 
     def dict_counter(col):
-        return dict(Counter(df_flats[col]))
+        return None
+        # return dict(Counter(df_flats[col]))
 
     flats_per_location = dict_counter('location')
     scraped_per_day = dict_counter('date_scraped')
