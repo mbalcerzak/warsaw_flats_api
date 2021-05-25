@@ -119,9 +119,13 @@ def get_flats_stats(path=None) -> dict:
     date_first = min(df_flats['date_scraped'])
     date_last = max(df_flats['date_scraped'])
 
-    flats_per_location = dict(Counter(df_flats['location']))
-    scraped_per_day = dict(Counter(df_flats['date_scraped']))
-    flats_per_area_cat = dict(Counter(df_flats['area_category']))
+    def dict_counter(col):
+        return dict(Counter(df_flats[col]))
+
+    flats_per_location = dict_counter('location')
+    scraped_per_day = dict_counter('date_scraped')
+    posted_per_day = dict_counter('date_posted')
+    flats_per_area_cat = dict_counter('area_category')
 
     price_m_location = load_df_avg_prices(path).to_dict('record')
     price_m_loc_area_cat = load_area_cat_df(path).to_dict('record')
@@ -132,6 +136,7 @@ def get_flats_stats(path=None) -> dict:
         "flats_per_location": flats_per_location,
         "flats_per_area_cat": flats_per_area_cat,
         "scraped_per_day": scraped_per_day,
+        "posted_per_day": posted_per_day,
         "price_m_location": price_m_location,
         "price_m_loc_area_cat": price_m_loc_area_cat
     }
