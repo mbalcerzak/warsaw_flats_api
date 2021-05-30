@@ -1,4 +1,10 @@
-python /home/mab/PycharmProjects/warsaw_flats_api/api/convert_to_json.py
+cd /home/pi/Documents/warsaw_flats_api/
+
+git pull
+
+source venv/bin/activate
+
 
 git commit -am "updated json"
+
 git push
