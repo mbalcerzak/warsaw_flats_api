@@ -16,9 +16,9 @@ def get_flats_stats(conn=None) -> dict:
     date_first = min(df_flats['date_scraped'])
     date_last = max(df_flats['date_scraped'])
 
-    def dict_counter(df=None, col=None):
-        df = df.sort_values(by=[col])
-        return dict(Counter(df[col]))
+    def dict_counter(dataframe=None, col=None):
+        dataframe = dataframe.sort_values(by=[col])
+        return dict(Counter(dataframe[col]))
 
     flats_per_location = dict_counter(df_flats, 'location')
 

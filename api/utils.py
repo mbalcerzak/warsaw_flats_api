@@ -1,9 +1,10 @@
 import pandas as pd
+from datetime import datetime
 
 
 def get_month(date: str) -> str:
     """Selects a month number from a date (String) and outputs name of the month"""
-    months_pl = {
+    months = {
         1: "January",
         2: "February",
         3: "March",
@@ -17,7 +18,16 @@ def get_month(date: str) -> str:
         11: "November",
         12: "December"
     }
-    return months_pl[int(date)]
+    return months[int(date)]
+
+
+def remove_waw(loc: str = None) -> str:
+    return loc.replace(", Warszawa", "")
+
+
+def get_weekday(date: str = None) -> str:
+    str_date = datetime.strptime(date, '%Y-%m-%d')
+    return str_date.strftime("%A")
 
 
 def get_moving_avg(scraped_per_day: dict, n: int = None) -> dict:

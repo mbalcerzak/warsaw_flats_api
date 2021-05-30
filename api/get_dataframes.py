@@ -1,6 +1,11 @@
 # Query SQLite database and get pandas DataFrames
 import pandas as pd
-from utils import get_month
+from utils import get_month, remove_waw, get_weekday
+from datetime import datetime
+
+
+def today_str():
+    return datetime.today().strftime('%Y-%m-%d')
 
 
 def get_area_categories():
@@ -42,18 +47,21 @@ def load_df(conn=None) -> pd.DataFrame:
     """
     Queries SQlite database, merges two tables and retrieves a DataFrame
     """
+    today = today_str()
     df = pd.read_sql_query(
         "SELECT * , "
         f" {get_area_categories()} ,"
-        "SUBSTR(date_scraped,6,2) as month_num "
-        "FROM flats WHERE flat_area > 0",
+        " SUBSTR(date_scraped,6,2) as month_num "
+        "FROM flats "
+        f"WHERE flat_area > 0 AND date_scraped <> '{today}' ",
         conn)
 
     assert len(df) > 0, "No data loaded from the database"
 
     df["month"] = df['month_num'].apply(get_month)
-    df = df.drop(columns=['month_num'])
     df = df.sort_values(by=['date_scraped'])
+    df['location'] = df['location'].apply(remove_waw)
+    df['weekday'] = df['date_scraped'].apply(get_weekday)
 
     return df
 
@@ -62,7 +70,6 @@ def load_df_avg_prices(conn=None) -> pd.DataFrame:
     """
     Queries SQlite database, merges two tables and retrieves a DataFrame
     """
-
     df = pd.read_sql_query(
         "SELECT "
         "   location, "
@@ -79,8 +86,8 @@ def load_df_avg_prices(conn=None) -> pd.DataFrame:
     assert len(df) > 0, "No data loaded from the database"
 
     df["month"] = df['month_num'].apply(get_month)
-    df = df.drop(columns=['month_num'])
     df['avg_price_per_m'] = df['avg_price_per_m'].apply(int)
+    df['location'] = df['location'].apply(remove_waw)
 
     return df
 
@@ -106,7 +113,7 @@ def load_area_cat_df(conn=None) -> pd.DataFrame:
     assert len(df) > 0, "No data loaded from the database"
 
     df["month"] = df['month_num'].apply(get_month)
-    df = df.drop(columns=['month_num'])
     df['avg_price_per_m'] = df['avg_price_per_m'].apply(int)
+    df['location'] = df['location'].apply(remove_waw)
 
     return df
