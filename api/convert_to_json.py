@@ -4,7 +4,7 @@ import yaml
 import sqlite3
 
 from get_dataframes import load_df, load_df_avg_prices, load_area_cat_df
-from utils import get_moving_avg
+from utils import get_moving_avg, get_date_weekdays
 
 
 def get_flats_stats(conn=None) -> dict:
@@ -26,6 +26,8 @@ def get_flats_stats(conn=None) -> dict:
     scraped_per_day_m_avg = get_moving_avg(scraped_per_day, 7)
     scraped_per_month = dict_counter(df_flats, 'month')
 
+    date_weekdays = get_date_weekdays(df_flats)
+
     posted_per_day = dict_counter(df_flats, 'date_posted')
     flats_per_area_cat = dict_counter(df_flats, 'area_category')
 
@@ -39,6 +41,7 @@ def get_flats_stats(conn=None) -> dict:
         "flats_per_area_cat": flats_per_area_cat,
         "scraped_per_day": scraped_per_day,
         "scraped_per_day_m_avg": scraped_per_day_m_avg,
+        "date_weekdays": date_weekdays,
         "scraped_per_month": scraped_per_month,
         "posted_per_day": posted_per_day,
         "price_m_location": price_m_location,

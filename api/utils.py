@@ -1,3 +1,5 @@
+from collections import Counter
+
 import pandas as pd
 from datetime import datetime
 
@@ -41,3 +43,14 @@ def get_moving_avg(scraped_per_day: dict, n: int = None) -> dict:
         json_dict[row['Date']] = int(row['Value'])
 
     return json_dict
+
+
+def get_date_weekdays(df):
+    weekdays = list(df['weekday'].unique())
+    weekdays_json = {}
+
+    for weekday in weekdays:
+        day_df = df.loc[df['weekday'] == weekday]
+        weekdays_json[weekday] = list(day_df['date_scraped'].unique())
+
+    return weekdays_json
