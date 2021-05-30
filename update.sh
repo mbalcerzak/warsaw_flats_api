@@ -4,7 +4,6 @@ git pull
 
 source venv/bin/activate
 
-
 git commit -am "updated json"
 
 git push
