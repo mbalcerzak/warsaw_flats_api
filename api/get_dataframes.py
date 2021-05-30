@@ -44,12 +44,15 @@ def load_df(conn=None) -> pd.DataFrame:
     """
     df = pd.read_sql_query(
         "SELECT * , "
-        f" {get_area_categories()} "
+        f" {get_area_categories()} ,"
+        "SUBSTR(date_scraped,6,2) as month_num "
         "FROM flats WHERE flat_area > 0",
         conn)
 
     assert len(df) > 0, "No data loaded from the database"
 
+    df["month"] = df['month_num'].apply(get_month)
+    df = df.drop(columns=['month_num'])
     df = df.sort_values(by=['date_scraped'])
 
     return df

@@ -24,6 +24,7 @@ def get_flats_stats(conn=None) -> dict:
 
     scraped_per_day = dict_counter(df_flats, 'date_scraped')
     scraped_per_day_m_avg = get_moving_avg(scraped_per_day, 7)
+    scraped_per_month = dict_counter(df_flats, 'month')
 
     posted_per_day = dict_counter(df_flats, 'date_posted')
     flats_per_area_cat = dict_counter(df_flats, 'area_category')
@@ -38,6 +39,7 @@ def get_flats_stats(conn=None) -> dict:
         "flats_per_area_cat": flats_per_area_cat,
         "scraped_per_day": scraped_per_day,
         "scraped_per_day_m_avg": scraped_per_day_m_avg,
+        "scraped_per_month": scraped_per_month,
         "posted_per_day": posted_per_day,
         "price_m_location": price_m_location,
         "price_m_loc_area_cat": price_m_loc_area_cat
