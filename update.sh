@@ -3,7 +3,12 @@ cd /home/pi/Documents/warsaw_flats_api/
 git pull
 
 source venv/bin/activate
+python3 /home/pi/Documents/warsaw_flats_api/api/convert_to_json.py
 
-git commit -am "updated json"
+git add .
+
+git commit -m "updated json"
 
 git push
+
+cd 
