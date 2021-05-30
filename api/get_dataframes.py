@@ -6,14 +6,14 @@ from utils import get_month
 def get_area_categories():
     query = (
         "   CASE "
-        "     WHEN flat_area <= 20 THEN 'less20' "
+        "     WHEN flat_area <= 20 THEN '20_or_less' "
         "     WHEN flat_area <= 30 THEN '20_30' "
         "     WHEN flat_area <= 40 THEN '30_40' "
         "     WHEN flat_area <= 50 THEN '40_50' "
         "     WHEN flat_area <= 60 THEN '50_60' "
         "     WHEN flat_area <= 70 THEN '60_70' "
         "     WHEN flat_area <= 80 THEN '70_80' "
-        "   ELSE 'more80' "
+        "   ELSE '80_or_more' "
         "END as area_category "
     )
 
