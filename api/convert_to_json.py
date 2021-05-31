@@ -4,18 +4,18 @@ import sqlite3
 import pandas as pd
 
 from get_dataframes import load_df, load_df_avg_prices, load_area_cat_df
-from utils import get_moving_avg, today_str, get_month, remove_waw, get_weekday, dict_counter
+from utils import get_moving_avg, today_str, get_month, remove_waw, get_weekday, dict_counter, get_month_from_date
 
 
 def process_df(df: pd.DataFrame = None) -> pd.DataFrame:
-    if 'date_scraped' in list(df):
-        df['month'] = df['date_scraped'].apply(get_month)
-        df['weekday'] = df['date_scraped'].apply(get_weekday)
-
     df['location'] = df['location'].apply(remove_waw)
-
+    if 'date_scraped' in list(df):
+        df['weekday'] = df['date_scraped'].apply(get_weekday)
+        df['month'] = df['date_scraped'].apply(get_month_from_date)
     if 'avg_price_per_m' in list(df):
         df['avg_price_per_m'] = df['avg_price_per_m'].apply(int)
+    if 'month_num' in list(df):
+        df['month'] = df['month_num'].apply(get_month)
 
     return df
 
