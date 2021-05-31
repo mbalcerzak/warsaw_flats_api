@@ -69,11 +69,11 @@ def get_flats_stats(conn=None) -> dict:
 
     print("Loading get_price_m_location ... ")
     price_m_location = get_price_m_location(conn)
-    price_m_location = process_df(price_m_location).to_dict('record')
+    price_m_location = process_df(price_m_location).to_dict('records')
 
     print("Loading get_price_m_loc_area_cat ... ")
     price_m_loc_area_cat = get_price_m_loc_area_cat(conn)
-    price_m_loc_area_cat = process_df(price_m_loc_area_cat).to_dict('record')
+    price_m_loc_area_cat = process_df(price_m_loc_area_cat).to_dict('records')
 
     return {
         "flats_per_location": flats_per_location,
