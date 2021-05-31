@@ -39,11 +39,11 @@ def load_df(conn=None, n=1500) -> pd.DataFrame:
     dfs = []
 
     chunk_num = 0
-    print(len(pd.read_sql_query(query_, con=conn, chunksize=n)))
     for chunk in pd.read_sql_query(query_, con=conn, chunksize=n):
         dfs.append(chunk)
+	print(dfs)
         chunk_num += 1
-        print("Chunk ", str(chunk_num))
+        print("Chunk ", str(chunk_num), " ___ ", str(len(dfs)))
 
     print("Concatenating chunks")
 
