@@ -2,46 +2,53 @@ from collections import Counter
 import json
 import yaml
 import sqlite3
+import pandas as pd
+import psutil
 
 from get_dataframes import load_df, load_df_avg_prices, load_area_cat_df
-from utils import get_moving_avg, get_date_weekdays
+from utils import get_moving_avg, today_str, get_month, remove_waw, get_weekday, dict_counter
+
+
+def process_df(df: pd.DataFrame = None) -> pd.DataFrame:
+    if 'date_scraped' in list(df):
+        df['month'] = df['date_scraped'].apply(get_month)
+        df['weekday'] = df['date_scraped'].apply(get_weekday)
+
+    df['location'] = df['location'].apply(remove_waw)
+
+    if 'avg_price_per_m' in list(df):
+        df['avg_price_per_m'] = df['avg_price_per_m'].apply(int)
+
+    return df
 
 
 def get_flats_stats(conn=None) -> dict:
-    """
-    Create statistics about the scraped data
-    """
+    """ Create statistics about the scraped data """
+
     df_flats = load_df(conn)
+    df_flats = process_df(df_flats)
+    today = today_str()
+    df_flats = df_flats.loc[df_flats['date_scraped'] != today]
 
-    date_first = min(df_flats['date_scraped'])
-    date_last = max(df_flats['date_scraped'])
-
-    def dict_counter(dataframe=None, col=None):
-        dataframe = dataframe.sort_values(by=[col])
-        return dict(Counter(dataframe[col]))
-
-    flats_per_location = dict_counter(df_flats, 'location')
-
+    posted_per_day = dict_counter(df_flats, 'date_posted')
     scraped_per_day = dict_counter(df_flats, 'date_scraped')
     scraped_per_day_m_avg = get_moving_avg(scraped_per_day, 7)
     scraped_per_month = dict_counter(df_flats, 'month')
 
-    date_weekdays = get_date_weekdays(df_flats)
-
-    posted_per_day = dict_counter(df_flats, 'date_posted')
+    flats_per_location = dict_counter(df_flats, 'location')
     flats_per_area_cat = dict_counter(df_flats, 'area_category')
 
-    price_m_location = load_df_avg_prices(conn).to_dict('record')
-    price_m_loc_area_cat = load_area_cat_df(conn).to_dict('record')
+    price_m_location = load_df_avg_prices(conn)
+    price_m_loc_area_cat = load_area_cat_df(conn)
+
+    price_m_location = process_df(price_m_location).to_dict('record')
+    price_m_loc_area_cat = process_df(price_m_loc_area_cat).to_dict('record')
 
     return {
-        "date_first": date_first,
-        "date_last": date_last,
         "flats_per_location": flats_per_location,
         "flats_per_area_cat": flats_per_area_cat,
         "scraped_per_day": scraped_per_day,
         "scraped_per_day_m_avg": scraped_per_day_m_avg,
-        "date_weekdays": date_weekdays,
         "scraped_per_month": scraped_per_month,
         "posted_per_day": posted_per_day,
         "price_m_location": price_m_location,
@@ -56,7 +63,7 @@ if __name__ == "__main__":
     data_path = paths['data_path']
 
     try:
-        connection = sqlite3.connect(data_path)
+        connection = sqlite3.connect(data_path, check_same_thread=False)
         df = get_flats_stats(connection)
 
         with open('json_dir/flats.json', 'w') as f:

@@ -5,22 +5,8 @@ from datetime import datetime
 
 
 def get_month(date: str) -> str:
-    """Selects a month number from a date (String) and outputs name of the month"""
-    months = {
-        1: "January",
-        2: "February",
-        3: "March",
-        4: "April",
-        5: "May",
-        6: "June",
-        7: "July",
-        8: "August",
-        9: "September",
-        10: "October",
-        11: "November",
-        12: "December"
-    }
-    return months[int(date)]
+    str_date = datetime.strptime(date, '%Y-%m-%d')
+    return str_date.strftime("%B")
 
 
 def remove_waw(loc: str = None) -> str:
@@ -45,12 +31,11 @@ def get_moving_avg(scraped_per_day: dict, n: int = None) -> dict:
     return json_dict
 
 
-def get_date_weekdays(df):
-    weekdays = list(df['weekday'].unique())
-    weekdays_json = {}
+def today_str():
+    return datetime.today().strftime('%Y-%m-%d')
 
-    for weekday in weekdays:
-        day_df = df.loc[df['weekday'] == weekday]
-        weekdays_json[weekday] = list(day_df['date_scraped'].unique())
 
-    return weekdays_json
+def dict_counter(dataframe=None, col=None):
+    dataframe = dataframe.sort_values(by=[col])
+    return dict(Counter(dataframe[col]))
+
