@@ -13,6 +13,8 @@ def get_flats_stats(conn=None) -> dict:
     """
     df_flats = load_df(conn)
 
+    print(df_flats.head())
+
     date_first = min(df_flats['date_scraped'])
     date_last = max(df_flats['date_scraped'])
 
@@ -54,6 +56,7 @@ if __name__ == "__main__":
         paths = yaml.safe_load(f)
 
     data_path = paths['data_path']
+    print(data_path)
 
     try:
         connection = sqlite3.connect(data_path)
