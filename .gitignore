@@ -132,5 +132,9 @@ dmypy.json
 # CONFIG
 *.yaml
 
-# postry
+# poetry
 *.lock
+
+# scripts
+update.sh
+*.sh
