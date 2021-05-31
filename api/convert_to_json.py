@@ -102,3 +102,5 @@ if __name__ == "__main__":
 
     except sqlite3.Error as e:
         raise Exception
+
+    connection.close()
