@@ -37,14 +37,13 @@ def get_weekday(date: str = None) -> str:
 
 
 def get_moving_avg(scraped_per_day: dict, n: int = None) -> dict:
-    df = pd.DataFrame(scraped_per_day.items(), columns=['Date', 'Value'])
-    df = df.sort_values(by=['Date'])
-    df['Value'] = df['Value'].rolling(n).mean()
+    df = scraped_per_day.sort_values(by=['date_scraped'])
+    df['num_flats'] = df['num_flats'].rolling(n).mean()
     df = df.dropna()
 
     json_dict = {}
     for _, row in df.iterrows():
-        json_dict[row['Date']] = int(row['Value'])
+        json_dict[row['date_scraped']] = int(row['num_flats'])
 
     return json_dict
 
@@ -53,7 +52,5 @@ def today_str():
     return datetime.today().strftime('%Y-%m-%d')
 
 
-def dict_counter(dataframe=None, col=None):
-    dataframe = dataframe.sort_values(by=[col])
-    return dict(Counter(dataframe[col]))
+
 

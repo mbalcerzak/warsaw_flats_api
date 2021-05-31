@@ -3,12 +3,14 @@ import yaml
 import sqlite3
 import pandas as pd
 
-from get_dataframes import load_df, load_df_avg_prices, load_area_cat_df
-from utils import get_moving_avg, today_str, get_month, remove_waw, get_weekday, dict_counter, get_month_from_date
+from get_dataframes import get_price_m_location, get_price_m_loc_area_cat, get_scraped_per_day, \
+    get_flats_per_area_cat, get_flats_per_location, get_posted_per_day, get_scraped_per_month
+from utils import get_moving_avg, today_str, get_month, remove_waw, get_weekday, get_month_from_date
 
 
 def process_df(df: pd.DataFrame = None) -> pd.DataFrame:
-    df['location'] = df['location'].apply(remove_waw)
+    if 'location' in list(df):
+        df['location'] = df['location'].apply(remove_waw)
     if 'date_scraped' in list(df):
         df['weekday'] = df['date_scraped'].apply(get_weekday)
         df['month'] = df['date_scraped'].apply(get_month_from_date)
@@ -20,31 +22,51 @@ def process_df(df: pd.DataFrame = None) -> pd.DataFrame:
     return df
 
 
+def dict_counter(df=None, col1=None):
+    df = df.sort_values(by=[col1])
+    json_dict = {}
+    for _, row in df.iterrows():
+        json_dict[row[col1]] = int(row['num_flats'])
+
+    return json_dict
+
+
 def get_flats_stats(conn=None) -> dict:
     """ Create statistics about the scraped data """
-
-    print("Loading df_flats ... ")
-    df_flats = load_df(conn)
-    print("Processing df_flats ... ")
-    df_flats = process_df(df_flats)
     today = today_str()
-    df_flats = df_flats.loc[df_flats['date_scraped'] != today]
 
-    posted_per_day = dict_counter(df_flats, 'date_posted')
-    scraped_per_day = dict_counter(df_flats, 'date_scraped')
-    print("Calculating scraped_per_day ... ")
-    scraped_per_day_m_avg = get_moving_avg(scraped_per_day, 7)
-    scraped_per_month = dict_counter(df_flats, 'month')
+    print("Calculating posted_per_day... ")
+    posted_per_day = get_posted_per_day(conn)
+    posted_per_day = dict_counter(posted_per_day, 'date_posted')
 
-    flats_per_location = dict_counter(df_flats, 'location')
-    flats_per_area_cat = dict_counter(df_flats, 'area_category')
+    print("Calculating scraped_per_month... ")
+    scraped_per_month = get_scraped_per_month(conn)
+    scraped_per_month = process_df(scraped_per_month)
+    scraped_per_month = dict_counter(scraped_per_month, 'month')
 
-    print("Loading load_df_avg_prices ... ")
-    price_m_location = load_df_avg_prices(conn)
-    print("Loading load_area_cat_df ... ")
-    price_m_loc_area_cat = load_area_cat_df(conn)
+    print("Calculating flats_per_location... ")
+    flats_per_location = get_flats_per_location(conn)
+    flats_per_location = process_df(flats_per_location)
+    flats_per_location = dict_counter(flats_per_location, 'location')
 
+    print("Calculating flats_per_area_cat... ")
+    flats_per_area_cat = get_flats_per_area_cat(conn)
+    flats_per_area_cat = dict_counter(flats_per_area_cat, 'area_category')
+
+    print("Calculating scraped_per_day... ")
+    scraped_per_day = get_scraped_per_day(conn)
+    scraped_per_day_df = scraped_per_day.loc[scraped_per_day['date_scraped'] != today]
+    scraped_per_day = dict_counter(scraped_per_day, 'date_scraped')
+
+    print("Calculating Moving Average... ")
+    scraped_per_day_m_avg = get_moving_avg(scraped_per_day_df, 7)
+
+    print("Loading get_price_m_location ... ")
+    price_m_location = get_price_m_location(conn)
     price_m_location = process_df(price_m_location).to_dict('record')
+
+    print("Loading get_price_m_loc_area_cat ... ")
+    price_m_loc_area_cat = get_price_m_loc_area_cat(conn)
     price_m_loc_area_cat = process_df(price_m_loc_area_cat).to_dict('record')
 
     return {
