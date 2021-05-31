@@ -52,5 +52,10 @@ def today_str():
     return datetime.today().strftime('%Y-%m-%d')
 
 
+def dict_counter(df=None, col1=None):
+    df = df.sort_values(by=[col1])
+    json_dict = {}
+    for _, row in df.iterrows():
+        json_dict[row[col1]] = int(row['num_flats'])
 
-
+    return json_dict

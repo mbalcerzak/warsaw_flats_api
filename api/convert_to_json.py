@@ -3,9 +3,24 @@ import yaml
 import sqlite3
 import pandas as pd
 
-from get_dataframes import get_price_m_location, get_price_m_loc_area_cat, get_scraped_per_day, \
-    get_flats_per_area_cat, get_flats_per_location, get_posted_per_day, get_scraped_per_month
-from utils import get_moving_avg, today_str, get_month, remove_waw, get_weekday, get_month_from_date
+from get_dataframes import (
+    get_price_m_location,
+    get_price_m_loc_area_cat,
+    get_scraped_per_day,
+    get_flats_per_area_cat,
+    get_flats_per_location,
+    get_posted_per_day,
+    get_scraped_per_month
+)
+from utils import (
+    get_moving_avg,
+    today_str,
+    get_month,
+    remove_waw,
+    get_weekday,
+    get_month_from_date,
+    dict_counter
+)
 
 
 def process_df(df: pd.DataFrame = None) -> pd.DataFrame:
@@ -20,15 +35,6 @@ def process_df(df: pd.DataFrame = None) -> pd.DataFrame:
         df['month'] = df['month_num'].apply(get_month)
 
     return df
-
-
-def dict_counter(df=None, col1=None):
-    df = df.sort_values(by=[col1])
-    json_dict = {}
-    for _, row in df.iterrows():
-        json_dict[row[col1]] = int(row['num_flats'])
-
-    return json_dict
 
 
 def get_flats_stats(conn=None) -> dict:
