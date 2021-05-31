@@ -29,31 +29,65 @@ def calc_avg_price():
     return "ROUND((prices.price/flat_area),2)"
 
 
-def load_df(conn=None, n=1500) -> pd.DataFrame:
-    """
-    Queries SQlite database, merges two tables and retrieves a DataFrame
-    """
-    query_ = (f"SELECT * , {get_area_categories()} "
-              "FROM flats "
-              "WHERE flat_area > 0 ")
-    dfs = []
-
-    chunk_num = 0
-    for chunk in pd.read_sql_query(query_, con=conn, chunksize=n):
-        dfs.append(chunk)
-	print(dfs)
-        chunk_num += 1
-        print("Chunk ", str(chunk_num), " ___ ", str(len(dfs)))
-
-    print("Concatenating chunks")
-
-    df = pd.concat(dfs)
-    df = df.reset_index()
+def get_scraped_per_day(conn=None) -> pd.DataFrame:
+    df = pd.read_sql_query(
+        "SELECT date_scraped, count(*) as num_flats "
+        "FROM  flats "
+        "GROUP BY date_scraped ",
+        conn)
 
     return df
 
 
-def load_df_avg_prices(conn=None) -> pd.DataFrame:
+def get_scraped_per_month(conn=None) -> pd.DataFrame:
+    df = pd.read_sql_query(
+        "SELECT "
+        "   SUBSTR(date_scraped, 6,2) as month_num, "
+        "   count(*) as num_flats "
+        "FROM  flats "
+        "GROUP BY month_num ",
+        conn)
+
+    return df
+
+
+def get_posted_per_day(conn=None) -> pd.DataFrame:
+    df = pd.read_sql_query(
+        "SELECT date_posted, count(*) as num_flats "
+        "FROM  flats "
+        "GROUP BY date_posted ",
+        conn)
+
+    return df
+
+
+def get_flats_per_location(conn=None) -> pd.DataFrame:
+    df = pd.read_sql_query(
+        "SELECT "
+        "   location ,"
+        "   count(*) as num_flats "
+        "FROM flats "
+        "GROUP BY location "
+        "ORDER BY location ",
+        conn)
+
+    return df
+
+
+def get_flats_per_area_cat(conn=None) -> pd.DataFrame:
+    df = pd.read_sql_query(
+        "SELECT "
+        f" {get_area_categories()} ,"
+        "   count(*) as num_flats "
+        "FROM flats "
+        "GROUP BY area_category "
+        "ORDER BY area_category ",
+        conn)
+
+    return df
+
+
+def get_price_m_location(conn=None) -> pd.DataFrame:
     """
     Queries SQlite database, merges two tables and retrieves a DataFrame
     """
@@ -73,7 +107,7 @@ def load_df_avg_prices(conn=None) -> pd.DataFrame:
     return df
 
 
-def load_area_cat_df(conn=None) -> pd.DataFrame:
+def get_price_m_loc_area_cat(conn=None) -> pd.DataFrame:
     """
     Queries SQlite database, merges two tables and retrieves a DataFrame
     """
