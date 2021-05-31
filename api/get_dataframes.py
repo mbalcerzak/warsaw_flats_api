@@ -29,7 +29,7 @@ def calc_avg_price():
     return "ROUND((prices.price/flat_area),2)"
 
 
-def load_df(conn=None, n=100) -> pd.DataFrame:
+def load_df(conn=None, n=1500) -> pd.DataFrame:
     """
     Queries SQlite database, merges two tables and retrieves a DataFrame
     """
@@ -38,11 +38,14 @@ def load_df(conn=None, n=100) -> pd.DataFrame:
               "WHERE flat_area > 0 ")
     dfs = []
 
-    chunk = 0
+    chunk_num = 0
+    print(len(pd.read_sql_query(query_, con=conn, chunksize=n)))
     for chunk in pd.read_sql_query(query_, con=conn, chunksize=n):
         dfs.append(chunk)
-        chunk += 1
-        print("Chunk ", str(chunk))
+        chunk_num += 1
+        print("Chunk ", str(chunk_num))
+
+    print("Concatenating chunks")
 
     df = pd.concat(dfs)
     df = df.reset_index()
