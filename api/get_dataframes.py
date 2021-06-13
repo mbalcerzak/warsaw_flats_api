@@ -1,4 +1,7 @@
 # Query SQLite database and get pandas DataFrames
+from datetime import datetime
+from typing import List
+
 import pandas as pd
 
 
@@ -139,3 +142,18 @@ def get_price_m_loc_area_cat(conn=None) -> pd.DataFrame:
         conn)
 
     return df
+
+
+def get_dates(conn=None) -> dict:
+    df = pd.read_sql_query(
+        "SELECT max(date_scraped) as max_date, min(date_scraped) as min_date "
+        "FROM flats ",
+        conn)
+
+    datetimeobj_max = datetime.strptime(df.max_date[0], '%Y-%m-%d')
+    max_date = datetimeobj_max.strftime('%B %d, %Y')
+
+    datetimeobj_min = datetime.strptime(df.min_date[0], '%Y-%m-%d')
+    min_date = datetimeobj_min.strftime('%B %d, %Y')
+
+    return {"max_date": max_date, "min_date": min_date}

@@ -11,7 +11,8 @@ from get_dataframes import (
     get_flats_per_area_cat,
     get_flats_per_location,
     get_posted_per_day,
-    get_scraped_per_month
+    get_scraped_per_month,
+    get_dates
 )
 from utils import (
     get_moving_avg,
@@ -85,7 +86,12 @@ def get_flats_stats(conn=None) -> dict:
     price_m_loc_area_cat = get_price_m_loc_area_cat(conn)
     price_m_loc_area_cat = process_df(price_m_loc_area_cat).to_dict('records')
 
+    print("Find dates (max, min)")
+    dates = get_dates(conn)
+
     return {
+        "dates": dates,
+
         "flats_per_location": flats_per_location,
         "flats_per_area_cat": flats_per_area_cat,
 
