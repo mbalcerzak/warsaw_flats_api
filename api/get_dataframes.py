@@ -26,7 +26,7 @@ def get_flats_db():
 
 
 def calc_avg_price():
-    return "ROUND((prices.price/flat_area),2)"
+    return "ROUND((SUM(prices.price)/SUM(flat_area)),2)"
 
 
 def get_scraped_per_day(conn=None) -> pd.DataFrame:
@@ -34,6 +34,19 @@ def get_scraped_per_day(conn=None) -> pd.DataFrame:
         "SELECT date_scraped, count(*) as num_flats "
         "FROM  flats "
         "GROUP BY date_scraped ",
+        conn)
+
+    return df
+
+
+def get_price_changes_per_day(conn=None) -> pd.DataFrame:
+    df = pd.read_sql_query(
+        "SELECT date as date_scraped, count(*) as num_flats FROM prices "
+        "WHERE flat_id in (SELECT flat_id "
+                            "FROM prices "
+                            "GROUP BY flat_id "
+                            "HAVING count(flat_id) > 1) "
+        "GROUP BY date",
         conn)
 
     return df
@@ -94,15 +107,17 @@ def get_price_m_location(conn=None) -> pd.DataFrame:
     df = pd.read_sql_query(
         "SELECT "
         "   location, "
-        f" {get_area_categories()} ,"
         "   SUBSTR(date_scraped, 6,2) as month_num, "
         f"  {calc_avg_price()} as avg_price_per_m, "
         "   count(*) as num_flats "
         "FROM prices "
         f"INNER JOIN ({get_flats_db()}) as flats "
         "ON prices.flat_id = flats.ad_id "
-        "GROUP BY location, month_num ",
+        "GROUP BY location, month_num "
+        "HAVING price > 0 ",
         conn)
+
+    print(df)
 
     return df
 
@@ -121,7 +136,8 @@ def get_price_m_loc_area_cat(conn=None) -> pd.DataFrame:
         "FROM prices "
         f"INNER JOIN ({get_flats_db()}) as flats "
         "ON prices.flat_id = flats.ad_id "
-        "GROUP BY location, month_num, area_category ",
+        "GROUP BY location, month_num, area_category "
+        "HAVING price > 0 ",
         conn)
 
     return df

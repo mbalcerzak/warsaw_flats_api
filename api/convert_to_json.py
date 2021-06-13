@@ -7,6 +7,7 @@ from get_dataframes import (
     get_price_m_location,
     get_price_m_loc_area_cat,
     get_scraped_per_day,
+    get_price_changes_per_day,
     get_flats_per_area_cat,
     get_flats_per_location,
     get_posted_per_day,
@@ -64,6 +65,11 @@ def get_flats_stats(conn=None) -> dict:
     scraped_per_day_df = scraped_per_day.loc[scraped_per_day['date_scraped'] != today]
     scraped_per_day = dict_counter(scraped_per_day, 'date_scraped')
 
+    print('Calculating price changes per day...')
+    price_changes_per_day = get_price_changes_per_day(conn)
+    price_changes_per_day = price_changes_per_day.loc[price_changes_per_day['date_scraped'] != today]
+    changes_per_day = dict_counter(price_changes_per_day, 'date_scraped')
+
     print("Calculating Moving Average... ")
     scraped_per_day_m_avg = get_moving_avg(scraped_per_day_df, 7)
 
@@ -79,6 +85,7 @@ def get_flats_stats(conn=None) -> dict:
         "flats_per_location": flats_per_location,
         "flats_per_area_cat": flats_per_area_cat,
         "scraped_per_day": scraped_per_day,
+        "changes_per_day": changes_per_day,
         "scraped_per_day_m_avg": scraped_per_day_m_avg,
         "scraped_per_month": scraped_per_month,
         "posted_per_day": posted_per_day,
@@ -88,7 +95,7 @@ def get_flats_stats(conn=None) -> dict:
 
 
 if __name__ == "__main__":
-    with open(r'config.yaml') as f:
+    with open(r'../config.yaml') as f:
         paths = yaml.safe_load(f)
 
     data_path = paths['data_path']
@@ -97,7 +104,7 @@ if __name__ == "__main__":
         connection = sqlite3.connect(data_path, check_same_thread=False)
         df = get_flats_stats(connection)
 
-        with open('json_dir/flats.json', 'w') as f:
+        with open('../json_dir/flats.json', 'w') as f:
             json.dump(df, f, ensure_ascii=False)
 
     except sqlite3.Error as e:
