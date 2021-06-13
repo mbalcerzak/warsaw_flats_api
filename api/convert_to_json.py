@@ -44,6 +44,7 @@ def get_flats_stats(conn=None) -> dict:
 
     print("Calculating posted_per_day... ")
     posted_per_day = get_posted_per_day(conn)
+    posted_per_day = posted_per_day.loc[posted_per_day['date_posted'] != today]
     posted_per_day = dict_counter(posted_per_day, 'date_posted')
 
     print("Calculating scraped_per_month... ")
@@ -65,13 +66,13 @@ def get_flats_stats(conn=None) -> dict:
     scraped_per_day_df = scraped_per_day.loc[scraped_per_day['date_scraped'] != today]
     scraped_per_day = dict_counter(scraped_per_day, 'date_scraped')
 
+    print("Calculating Moving Average of scraped per day... ")
+    scraped_per_day_m_avg = get_moving_avg(scraped_per_day_df, 7)
+
     print('Calculating price changes per day...')
     price_changes_per_day = get_price_changes_per_day(conn)
     price_changes_per_day = price_changes_per_day.loc[price_changes_per_day['date_scraped'] != today]
     changes_per_day = dict_counter(price_changes_per_day, 'date_scraped')
-
-    print("Calculating Moving Average of scraped per day... ")
-    scraped_per_day_m_avg = get_moving_avg(scraped_per_day_df, 7)
 
     print("Calculating Moving Average of price changes... ")
     changed_per_day_m_avg = get_moving_avg(price_changes_per_day, 7)
