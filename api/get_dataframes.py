@@ -1,7 +1,5 @@
 # Query SQLite database and get pandas DataFrames
 from datetime import datetime
-from typing import List
-
 import pandas as pd
 
 
