@@ -64,7 +64,7 @@ def get_flats_stats(conn=None) -> dict:
     print("Calculating scraped_per_day... ")
     scraped_per_day = get_scraped_per_day(conn)
     scraped_per_day_df = scraped_per_day.loc[scraped_per_day['date_scraped'] != today]
-    scraped_per_day = dict_counter(scraped_per_day, 'date_scraped')
+    scraped_per_day = dict_counter(scraped_per_day_df, 'date_scraped')
 
     print("Calculating Moving Average of scraped per day... ")
     scraped_per_day_m_avg = get_moving_avg(scraped_per_day_df, 7)
