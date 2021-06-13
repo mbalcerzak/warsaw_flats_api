@@ -117,8 +117,6 @@ def get_price_m_location(conn=None) -> pd.DataFrame:
         "HAVING price > 0 ",
         conn)
 
-    print(df)
-
     return df
 
 
