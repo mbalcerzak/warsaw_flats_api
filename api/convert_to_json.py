@@ -110,7 +110,7 @@ def get_flats_stats(conn=None) -> dict:
 
 
 if __name__ == "__main__":
-    with open(r'../config.yaml') as f:
+    with open(r'config.yaml') as f:
         paths = yaml.safe_load(f)
 
     data_path = paths['data_path']
@@ -120,7 +120,7 @@ if __name__ == "__main__":
         connection = sqlite3.connect(data_path, check_same_thread=False)
         df = get_flats_stats(connection)
 
-        with open('../json_dir/flats.json', 'w') as f:
+        with open('json_dir/flats.json', 'w') as f:
             json.dump(df, f, ensure_ascii=False)
 
     except sqlite3.Error as e:
