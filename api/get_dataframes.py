@@ -22,7 +22,7 @@ def get_flats_db():
     return (
         "SELECT ad_id, location, flat_area, date_scraped "
         "FROM flats "
-        "WHERE flat_area > 0"
+        "WHERE flat_area > 0 and flat_area < 150 "
         )
 
 
@@ -115,7 +115,7 @@ def get_price_m_location(conn=None) -> pd.DataFrame:
         f"INNER JOIN ({get_flats_db()}) as flats "
         "ON prices.flat_id = flats.ad_id "
         "GROUP BY location, month_num "
-        "HAVING price > 0 ",
+        "HAVING price > 1000 and flat_area > 0 and flat_area < 150 ",
         conn)
 
     return df
@@ -136,7 +136,7 @@ def get_price_m_loc_area_cat(conn=None) -> pd.DataFrame:
         f"INNER JOIN ({get_flats_db()}) as flats "
         "ON prices.flat_id = flats.ad_id "
         "GROUP BY location, month_num, area_category "
-        "HAVING price > 0 ",
+        "HAVING price > 1000 and flat_area > 0 and flat_area < 150 ",
         conn)
 
     return df
