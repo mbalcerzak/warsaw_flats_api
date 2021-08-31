@@ -37,13 +37,19 @@ def get_weekday(date: str = None) -> str:
 
 
 def get_moving_avg(scraped_per_day: dict, n: int = None) -> dict:
-    df = scraped_per_day.sort_values(by=['date_scraped'])
+    try:
+        df = scraped_per_day.sort_values(by=['date_scraped'])
+        col = 'date_scraped'
+    except KeyError:
+        df = scraped_per_day.sort_values(by=['date_posted'])
+        col = 'date_posted'
+
     df['num_flats'] = df['num_flats'].rolling(n).mean()
     df = df.dropna()
 
     json_dict = {}
     for _, row in df.iterrows():
-        json_dict[row['date_scraped']] = int(row['num_flats'])
+        json_dict[row[col]] = int(row['num_flats'])
 
     return json_dict
 
