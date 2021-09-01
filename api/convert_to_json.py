@@ -46,6 +46,7 @@ def get_flats_stats(conn=None) -> dict:
     print("Calculating posted_per_day... ")
     posted_per_day = get_posted_per_day(conn)
     posted_per_day = posted_per_day.loc[posted_per_day['date_posted'] != today]
+    posted_per_day = posted_per_day.loc[posted_per_day['date_posted'] >= '2021-01-01']
     posted_per_day_m_avg = get_moving_avg(posted_per_day, 7)
     posted_per_day = dict_counter(posted_per_day, 'date_posted')
 
