@@ -47,6 +47,8 @@ def get_flats_stats(conn=None) -> dict:
     posted_per_day = get_posted_per_day(conn)
     posted_per_day = posted_per_day.loc[posted_per_day['date_posted'] != today]
     posted_per_day = posted_per_day.loc[posted_per_day['date_posted'] >= '2021-01-01']
+    # power outage - huge hailstorms 13th July
+    posted_per_day = posted_per_day.loc[~posted_per_day['date_posted'].between('2021-07-13', '2021-07-26')]
     posted_per_day_m_avg = get_moving_avg(posted_per_day, 7)
     posted_per_day = dict_counter(posted_per_day, 'date_posted')
 
@@ -67,6 +69,8 @@ def get_flats_stats(conn=None) -> dict:
     print("Calculating scraped_per_day... ")
     scraped_per_day = get_scraped_per_day(conn)
     scraped_per_day_df = scraped_per_day.loc[scraped_per_day['date_scraped'] != today]
+    # power outage - huge hailstorms
+    scraped_per_day_df = scraped_per_day_df.loc[~scraped_per_day_df['date_scraped'].between('2021-07-13', '2021-07-26')]
     scraped_per_day = dict_counter(scraped_per_day_df, 'date_scraped')
 
     print("Calculating Moving Average of scraped per day... ")
