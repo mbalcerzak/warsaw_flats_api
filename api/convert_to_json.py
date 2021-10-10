@@ -125,6 +125,9 @@ if __name__ == "__main__":
 
     try:
         connection = sqlite3.connect(data_path, check_same_thread=False)
+        connection.close()
+        connection = sqlite3.connect(data_path, check_same_thread=False)
+	
         df = get_flats_stats(connection)
 
         with open('json_dir/flats.json', 'w') as f:
