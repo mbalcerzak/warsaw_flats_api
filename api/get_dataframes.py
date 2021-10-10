@@ -21,7 +21,7 @@ def get_area_categories():
 
 def get_flats_db():
     return (
-        "SELECT ad_id, location, flat_area, date_scraped "
+        "SELECT flat_id, ad_id, location, flat_area, date_scraped "
         "FROM flats "
         f"WHERE flat_area > 0 and flat_area < {max_area} "
         )
@@ -114,7 +114,7 @@ def get_price_m_location(conn=None) -> pd.DataFrame:
         "   count(*) as num_flats "
         "FROM prices "
         f"INNER JOIN ({get_flats_db()}) as flats "
-        "ON prices.flat_id = flats.ad_id "
+        "ON prices.flat_id = flats.flat_id "
         "GROUP BY location, month_num "
         f"HAVING price > 1000 and flat_area > 0 and flat_area < {max_area} ",
         conn)
@@ -135,7 +135,7 @@ def get_price_m_loc_area_cat(conn=None) -> pd.DataFrame:
         "   count(*) as num_flats "
         "FROM prices "
         f"INNER JOIN ({get_flats_db()}) as flats "
-        "ON prices.flat_id = flats.ad_id "
+        "ON prices.flat_id = flats.flat_id "
         "GROUP BY location, month_num, area_category "
         f"HAVING price > 1000 and flat_area > 0 and flat_area < {max_area} ",
         conn)
