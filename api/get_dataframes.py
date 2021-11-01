@@ -23,7 +23,7 @@ def get_flats_db():
     return (
         "SELECT flat_id, ad_id, location, flat_area, date_scraped "
         "FROM flats "
-        f"WHERE flat_area > 0 and flat_area < {max_area} "
+        f"WHERE flat_area > 0 and flat_area < {max_area} and location <> 'Legionowo, Północne powiaty' "
         )
 
 
