@@ -43,6 +43,8 @@ def get_flats_stats(conn=None) -> dict:
     """ Create statistics about the scraped data """
     today = today_str()
 
+    print(today)
+
     print("Calculating posted_per_day... ")
     posted_per_day = get_posted_per_day(conn)
     posted_per_day = posted_per_day.loc[posted_per_day['date_posted'] != today]
@@ -70,7 +72,7 @@ def get_flats_stats(conn=None) -> dict:
     scraped_per_day = get_scraped_per_day(conn)
     scraped_per_day_df = scraped_per_day.loc[scraped_per_day['date_scraped'] != today]
     # power outage - huge hailstorms
-    scraped_per_day_df = scraped_per_day_df.loc[~scraped_per_day_df['date_scraped'].between('2021-07-13', '2021-07-26')]
+    # scraped_per_day_df = scraped_per_day_df.loc[~scraped_per_day_df['date_scraped'].between('2021-07-13', '2021-07-26')]
     scraped_per_day = dict_counter(scraped_per_day_df, 'date_scraped')
 
     print("Calculating Moving Average of scraped per day... ")
@@ -117,23 +119,30 @@ def get_flats_stats(conn=None) -> dict:
 
 
 if __name__ == "__main__":
-    with open(r'config.yaml') as f:
-        paths = yaml.safe_load(f)
+    today = today_str()
 
-    data_path = paths['data_path']
-    print(data_path)
+    if '2022' in today:
+        print("Blocked, we visualise only data for 2021")
 
-    try:
-        connection = sqlite3.connect(data_path, check_same_thread=False)
+    else:
+        with open(r'config.yaml') as f:
+            paths = yaml.safe_load(f)
+
+        data_path = paths['data_path']
+        print(data_path)
+
+        try:
+            connection = sqlite3.connect(data_path, check_same_thread=False)
+            connection.close()
+
+            connection = sqlite3.connect(data_path, check_same_thread=False)
+        
+            df = get_flats_stats(connection)
+
+            with open('json_dir/flats.json', 'w') as f:
+                json.dump(df, f, ensure_ascii=False)
+
+        except sqlite3.Error as e:
+            raise Exception
+
         connection.close()
-        connection = sqlite3.connect(data_path, check_same_thread=False)
-	
-        df = get_flats_stats(connection)
-
-        with open('json_dir/flats.json', 'w') as f:
-            json.dump(df, f, ensure_ascii=False)
-
-    except sqlite3.Error as e:
-        raise Exception
-
-    connection.close()
