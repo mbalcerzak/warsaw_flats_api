@@ -121,24 +121,28 @@ def get_flats_stats(conn=None) -> dict:
 if __name__ == "__main__":
     today = today_str()
 
-    with open(r'config.yaml') as f:
-        paths = yaml.safe_load(f)
+    if '2022' in today:
+        print("Blocked, we visualise only data for 2021")
 
-    data_path = paths['data_path']
-    print(data_path)
+    else:
+        with open(r'config.yaml') as f:
+            paths = yaml.safe_load(f)
 
-    try:
-        connection = sqlite3.connect(data_path, check_same_thread=False)
+        data_path = paths['data_path']
+        print(data_path)
+
+        try:
+            connection = sqlite3.connect(data_path, check_same_thread=False)
+            connection.close()
+
+            connection = sqlite3.connect(data_path, check_same_thread=False)
+        
+            df = get_flats_stats(connection)
+
+            with open('json_dir/flats.json', 'w') as f:
+                json.dump(df, f, ensure_ascii=False)
+
+        except sqlite3.Error as e:
+            raise Exception
+
         connection.close()
-
-        connection = sqlite3.connect(data_path, check_same_thread=False)
-    
-        df = get_flats_stats(connection)
-
-        with open('json_dir/flats.json', 'w') as f:
-            json.dump(df, f, ensure_ascii=False)
-
-    except sqlite3.Error as e:
-        raise Exception
-
-    connection.close()
