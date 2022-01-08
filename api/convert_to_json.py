@@ -33,9 +33,11 @@ def process_df(df: pd.DataFrame = None) -> pd.DataFrame:
         df['month'] = df['date_scraped'].apply(get_month_from_date)
     if 'avg_price_per_m' in list(df):
         df['avg_price_per_m'] = df['avg_price_per_m'].apply(int)
+    # if 'month_num' in list(df):
+    #     df['month'] = df['month_num'].apply(get_month_from_date)
     if 'month_num' in list(df):
         df['month'] = df['month_num'].apply(get_month)
-
+  
     return df
 
 
@@ -43,9 +45,13 @@ def get_flats_stats(conn=None) -> dict:
     """ Create statistics about the scraped data """
     today = today_str()
 
+    print(today)
+
     print("Calculating posted_per_day... ")
     posted_per_day = get_posted_per_day(conn)
     posted_per_day = posted_per_day.loc[posted_per_day['date_posted'] != today]
+    posted_per_day = posted_per_day.loc[posted_per_day['date_posted'] >= '2021-01-01']
+    posted_per_day_m_avg = get_moving_avg(posted_per_day, 7)
     posted_per_day = dict_counter(posted_per_day, 'date_posted')
 
     print("Calculating scraped_per_month... ")
@@ -103,6 +109,7 @@ def get_flats_stats(conn=None) -> dict:
 
         "scraped_per_month": scraped_per_month,
         "posted_per_day": posted_per_day,
+        "posted_per_day_m_avg": posted_per_day_m_avg,
 
         "price_m_location": price_m_location,
         "price_m_loc_area_cat": price_m_loc_area_cat
@@ -110,16 +117,21 @@ def get_flats_stats(conn=None) -> dict:
 
 
 if __name__ == "__main__":
-    with open(r'../config.yaml') as f:
+    with open(r'config.yaml') as f:
         paths = yaml.safe_load(f)
 
     data_path = paths['data_path']
+    print(data_path)
 
     try:
         connection = sqlite3.connect(data_path, check_same_thread=False)
+        connection.close()
+
+        connection = sqlite3.connect(data_path, check_same_thread=False)
+    
         df = get_flats_stats(connection)
 
-        with open('../json_dir/flats.json', 'w') as f:
+        with open('json_dir/flats.json', 'w') as f:
             json.dump(df, f, ensure_ascii=False)
 
     except sqlite3.Error as e:

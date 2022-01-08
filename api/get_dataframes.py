@@ -1,9 +1,8 @@
 # Query SQLite database and get pandas DataFrames
 from datetime import datetime
-from typing import List
-
 import pandas as pd
 
+max_area = 200
 
 def get_area_categories():
     return (
@@ -22,9 +21,9 @@ def get_area_categories():
 
 def get_flats_db():
     return (
-        "SELECT ad_id, location, flat_area, date_scraped "
+        "SELECT flat_id, ad_id, location, flat_area, date_scraped "
         "FROM flats "
-        "WHERE flat_area > 0"
+        f"WHERE flat_area > 0 and flat_area < {max_area} and location <> 'Legionowo, Północne powiaty' "
         )
 
 
@@ -58,7 +57,7 @@ def get_price_changes_per_day(conn=None) -> pd.DataFrame:
 def get_scraped_per_month(conn=None) -> pd.DataFrame:
     df = pd.read_sql_query(
         "SELECT "
-        "   SUBSTR(date_scraped, 6,2) as month_num, "
+        "   SUBSTR(date_scraped, 0, 8) as month_num, "
         "   count(*) as num_flats "
         "FROM  flats "
         "GROUP BY month_num ",
@@ -110,14 +109,14 @@ def get_price_m_location(conn=None) -> pd.DataFrame:
     df = pd.read_sql_query(
         "SELECT "
         "   location, "
-        "   SUBSTR(date_scraped, 6,2) as month_num, "
+        "   SUBSTR(date_scraped, 0, 8) as month_num, "
         f"  {calc_avg_price()} as avg_price_per_m, "
         "   count(*) as num_flats "
         "FROM prices "
         f"INNER JOIN ({get_flats_db()}) as flats "
-        "ON prices.flat_id = flats.ad_id "
+        "ON prices.flat_id = flats.flat_id "
         "GROUP BY location, month_num "
-        "HAVING price > 0 ",
+        f"HAVING price > 1000 and flat_area > 0 and flat_area < {max_area} ",
         conn)
 
     return df
@@ -131,14 +130,14 @@ def get_price_m_loc_area_cat(conn=None) -> pd.DataFrame:
         "SELECT "
         "   location, "
         f" {get_area_categories()} ,"
-        "   SUBSTR(date_scraped, 6,2) as month_num, "
+        "   SUBSTR(date_scraped, 0, 8) as month_num, "
         f"  {calc_avg_price()} as avg_price_per_m, "
         "   count(*) as num_flats "
         "FROM prices "
         f"INNER JOIN ({get_flats_db()}) as flats "
-        "ON prices.flat_id = flats.ad_id "
+        "ON prices.flat_id = flats.flat_id "
         "GROUP BY location, month_num, area_category "
-        "HAVING price > 0 ",
+        f"HAVING price > 1000 and flat_area > 0 and flat_area < {max_area} ",
         conn)
 
     return df
