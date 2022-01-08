@@ -33,9 +33,11 @@ def process_df(df: pd.DataFrame = None) -> pd.DataFrame:
         df['month'] = df['date_scraped'].apply(get_month_from_date)
     if 'avg_price_per_m' in list(df):
         df['avg_price_per_m'] = df['avg_price_per_m'].apply(int)
+    # if 'month_num' in list(df):
+    #     df['month'] = df['month_num'].apply(get_month_from_date)
     if 'month_num' in list(df):
         df['month'] = df['month_num'].apply(get_month)
-
+  
     return df
 
 
@@ -49,8 +51,6 @@ def get_flats_stats(conn=None) -> dict:
     posted_per_day = get_posted_per_day(conn)
     posted_per_day = posted_per_day.loc[posted_per_day['date_posted'] != today]
     posted_per_day = posted_per_day.loc[posted_per_day['date_posted'] >= '2021-01-01']
-    # power outage - huge hailstorms 13th July
-    # posted_per_day = posted_per_day.loc[~posted_per_day['date_posted'].between('2021-07-13', '2021-07-26')]
     posted_per_day_m_avg = get_moving_avg(posted_per_day, 7)
     posted_per_day = dict_counter(posted_per_day, 'date_posted')
 
@@ -71,8 +71,6 @@ def get_flats_stats(conn=None) -> dict:
     print("Calculating scraped_per_day... ")
     scraped_per_day = get_scraped_per_day(conn)
     scraped_per_day_df = scraped_per_day.loc[scraped_per_day['date_scraped'] != today]
-    # power outage - huge hailstorms
-    # scraped_per_day_df = scraped_per_day_df.loc[~scraped_per_day_df['date_scraped'].between('2021-07-13', '2021-07-26')]
     scraped_per_day = dict_counter(scraped_per_day_df, 'date_scraped')
 
     print("Calculating Moving Average of scraped per day... ")
@@ -119,30 +117,24 @@ def get_flats_stats(conn=None) -> dict:
 
 
 if __name__ == "__main__":
-    today = today_str()
+    with open(r'config.yaml') as f:
+        paths = yaml.safe_load(f)
 
-    if '2022' in today:
-        print("Blocked, we visualise only data for 2021")
+    data_path = paths['data_path']
+    print(data_path)
 
-    else:
-        with open(r'config.yaml') as f:
-            paths = yaml.safe_load(f)
-
-        data_path = paths['data_path']
-        print(data_path)
-
-        try:
-            connection = sqlite3.connect(data_path, check_same_thread=False)
-            connection.close()
-
-            connection = sqlite3.connect(data_path, check_same_thread=False)
-        
-            df = get_flats_stats(connection)
-
-            with open('json_dir/flats.json', 'w') as f:
-                json.dump(df, f, ensure_ascii=False)
-
-        except sqlite3.Error as e:
-            raise Exception
-
+    try:
+        connection = sqlite3.connect(data_path, check_same_thread=False)
         connection.close()
+
+        connection = sqlite3.connect(data_path, check_same_thread=False)
+    
+        df = get_flats_stats(connection)
+
+        with open('json_dir/flats.json', 'w') as f:
+            json.dump(df, f, ensure_ascii=False)
+
+    except sqlite3.Error as e:
+        raise Exception
+
+    connection.close()
