@@ -57,7 +57,7 @@ def get_price_changes_per_day(conn=None) -> pd.DataFrame:
 def get_scraped_per_month(conn=None) -> pd.DataFrame:
     df = pd.read_sql_query(
         "SELECT "
-        "   SUBSTR(date_scraped, 6,2) as month_num, "
+        "   SUBSTR(date_scraped, 0, 8) as month_num, "
         "   count(*) as num_flats "
         "FROM  flats "
         "GROUP BY month_num ",
@@ -109,7 +109,7 @@ def get_price_m_location(conn=None) -> pd.DataFrame:
     df = pd.read_sql_query(
         "SELECT "
         "   location, "
-        "   SUBSTR(date_scraped, 6,2) as month_num, "
+        "   SUBSTR(date_scraped, 0, 8) as month_num, "
         f"  {calc_avg_price()} as avg_price_per_m, "
         "   count(*) as num_flats "
         "FROM prices "
@@ -130,7 +130,7 @@ def get_price_m_loc_area_cat(conn=None) -> pd.DataFrame:
         "SELECT "
         "   location, "
         f" {get_area_categories()} ,"
-        "   SUBSTR(date_scraped, 6,2) as month_num, "
+        "   SUBSTR(date_scraped, 0, 8) as month_num, "
         f"  {calc_avg_price()} as avg_price_per_m, "
         "   count(*) as num_flats "
         "FROM prices "

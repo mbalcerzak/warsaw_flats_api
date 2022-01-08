@@ -4,27 +4,29 @@ from datetime import datetime
 
 
 def get_month(date: str) -> str:
-    """Selects a month number from a date (String) and outputs name of the month"""
-    months = {
-        1: "January",
-        2: "February",
-        3: "March",
-        4: "April",
-        5: "May",
-        6: "June",
-        7: "July",
-        8: "August",
-        9: "September",
-        10: "October",
-        11: "November",
-        12: "December"
-    }
-    return months[int(date)]
+    # """Selects a month number from a date (String) and outputs name of the month"""
+    # months = {
+    #     1: "January",
+    #     2: "February",
+    #     3: "March",
+    #     4: "April",
+    #     5: "May",
+    #     6: "June",
+    #     7: "July",
+    #     8: "August",
+    #     9: "September",
+    #     10: "October",
+    #     11: "November",
+    #     12: "December"
+    # }
+    # return f"{months[int(date[-2:])]}"
+    str_date = datetime.strptime(date, '%Y-%m')
+    return str_date.strftime("%B%Y")
 
 
 def get_month_from_date(date: str = None) -> str:
     str_date = datetime.strptime(date, '%Y-%m-%d')
-    return str_date.strftime("%B")
+    return str_date.strftime("%B%Y")
 
 
 def remove_waw(loc: str = None) -> str:
