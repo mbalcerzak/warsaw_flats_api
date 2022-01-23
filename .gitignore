@@ -142,3 +142,6 @@ update.sh
 # datasets
 data/
 .DS_Store
+
+# real price history
+json_dir/json_price_history.json
