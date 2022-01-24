@@ -4,7 +4,13 @@ from datetime import date
 from collections import defaultdict
 import random
 import yaml
+import requests
 
+
+def address_valid(link: str) -> bool:
+    r = requests.head(link).status_code
+    return r == 200
+    
 
 def query_db(connection):
     cursor = connection.cursor()
@@ -16,7 +22,7 @@ def query_db(connection):
     cursor.execute(query_lastest_date)
     date_lastest_change = [x[0] for x in cursor.fetchall()]
 
-    print(date_lastest_change)
+    print(f"Most recent dates: {date_lastest_change}")
 
     query = """SELECT
                     ad_id,
@@ -58,10 +64,21 @@ def query_db(connection):
 
     random_pick_ids = random.choices(latest_changed_flat_id, k=3)
 
+    assert len(random_pick_ids) > 0
+
     latest_changed_flats = {k:v for k,v in json_price_history.items() if k in random_pick_ids}
     random_links = {v:k for k,v in json_ad_id_link.items() if k in random_pick_ids}
 
-    return json_price_history, latest_changed_flats, random_links
+    valid_links = {}
+    for link in random_links:
+        if address_valid(link):
+            valid_links[link] = random_links[link]
+        else:
+            print(f"Link invalid: {link}")
+
+    print(f"{len(valid_links)} valid links")
+
+    return json_price_history, latest_changed_flats, valid_links
 
 
 if __name__ == "__main__":
@@ -87,4 +104,3 @@ if __name__ == "__main__":
         raise Exception
 
     connection.close()
-
