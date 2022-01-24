@@ -9,6 +9,7 @@ import yaml
 def query_db(connection):
     cursor = connection.cursor()
     json_price_history = defaultdict(dict)
+    json_ad_id_link = {}
     latest_changed_flat_id = []
 
     query_lastest_date = """SELECT DISTINCT date FROM prices ORDER BY date DESC LIMIT 3"""
@@ -50,17 +51,17 @@ def query_db(connection):
         page_address = row[3]
 
         json_price_history[flat_id][price_date] = price
-        json_price_history[flat_id]["page_address"] = page_address
+        json_ad_id_link[flat_id] = page_address
 
         if flat_id not in latest_changed_flat_id and price_date in date_lastest_change:
             latest_changed_flat_id.append(flat_id)
 
-    random_pick = random.choices(latest_changed_flat_id, k=3)
+    random_pick_ids = random.choices(latest_changed_flat_id, k=3)
 
-    latest_changed_flats = {k:v for k,v in json_price_history.items() if k in random_pick}
+    latest_changed_flats = {k:v for k,v in json_price_history.items() if k in random_pick_ids}
+    random_links = {v:k for k,v in json_ad_id_link.items() if k in random_pick_ids}
 
-
-    return json_price_history, latest_changed_flats
+    return json_price_history, latest_changed_flats, random_links
 
 
 if __name__ == "__main__":
@@ -74,13 +75,13 @@ if __name__ == "__main__":
         connection.close()
         connection = sqlite3.connect(data_path, check_same_thread=False)
     
-        json_price_history, latest_changes = query_db(connection)
-
-        # with open('json_dir/json_price_history.json', 'w') as f:
-        #     json.dump(json_price_history, f)
+        _, latest_changes, random_links = query_db(connection)
 
         with open('json_dir/latest_changes.json', 'w') as f:
             json.dump(latest_changes, f)
+        
+        with open('json_dir/random_links.json', 'w') as f:
+            json.dump(random_links, f)
 
     except sqlite3.Error as e:
         raise Exception
