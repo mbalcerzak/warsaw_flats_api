@@ -80,6 +80,8 @@ def query_db(connection):
 
     print(f"{len(valid_links)} valid links")
 
+    assert len(valid_links) > 0
+
     return json_price_history, latest_changed_flats, valid_links
 
 
