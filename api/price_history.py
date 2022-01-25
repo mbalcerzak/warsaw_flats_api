@@ -40,6 +40,8 @@ def query_db(connection):
                         prices 
                     LEFT JOIN 
                         flats on flats.flat_id = prices.flat_id 
+                    WHERE
+                        prices.date in (SELECT DISTINCT date FROM prices ORDER BY date DESC LIMIT 3)
                     GROUP BY 
                         prices.flat_id 
                     HAVING 
@@ -56,19 +58,20 @@ def query_db(connection):
         price_date = row[2]
         page_address = row[3]
 
-        json_price_history[flat_id][price_date] = price
-        json_ad_id_link[flat_id] = page_address
+        if address_valid(page_address):
+            json_price_history[flat_id][price_date] = price
+            json_ad_id_link[flat_id] = page_address
 
-        if flat_id not in latest_changed_flat_id and price_date in date_lastest_change:
-            latest_changed_flat_id.append(flat_id)
+            if flat_id not in latest_changed_flat_id and price_date in date_lastest_change:
+                latest_changed_flat_id.append(flat_id)
 
     print(f"{len(latest_changed_flat_id)} ads have changed prices recently")
 
-    random_pick_ids = random.choices(latest_changed_flat_id, k=4)
+    random_pick_ids = random.choices(latest_changed_flat_id, k=10)
 
     assert len(random_pick_ids) > 0
 
-    latest_changed_flats = {k:v for k,v in json_price_history.items() if k in random_pick_ids}
+    latest_changed_flats = {k:v for k,v in json_price_history.items() if k in latest_changed_flat_id}
     random_links = {v:k for k,v in json_ad_id_link.items() if k in random_pick_ids}
 
     valid_links = {}
