@@ -121,7 +121,6 @@ if __name__ == "__main__":
         paths = yaml.safe_load(f)
 
     data_path = paths['data_path']
-    print(data_path)
 
     try:
         connection = sqlite3.connect(data_path, check_same_thread=False)

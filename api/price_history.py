@@ -43,7 +43,7 @@ def query_db(connection):
                     GROUP BY 
                         prices.flat_id 
                     HAVING 
-                        count(prices.flat_id ) > 1
+                        count(prices.flat_id) > 2
                 ) 
             """
 
@@ -62,7 +62,9 @@ def query_db(connection):
         if flat_id not in latest_changed_flat_id and price_date in date_lastest_change:
             latest_changed_flat_id.append(flat_id)
 
-    random_pick_ids = random.choices(latest_changed_flat_id, k=3)
+    print(f"{len(latest_changed_flat_id)} ads have changed prices recently")
+
+    random_pick_ids = random.choices(latest_changed_flat_id, k=4)
 
     assert len(random_pick_ids) > 0
 
