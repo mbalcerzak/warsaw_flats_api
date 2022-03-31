@@ -130,8 +130,13 @@ if __name__ == "__main__":
     
         df = get_flats_stats(connection)
 
+        pices_location_area = df["price_m_loc_area_cat"]
+
         with open('json_dir/flats.json', 'w') as f:
             json.dump(df, f, ensure_ascii=False)
+
+        with open('json_dir/area_prices.json', 'w') as f:
+            json.dump(pices_location_area, f, ensure_ascii=False)
 
     except sqlite3.Error as e:
         raise Exception

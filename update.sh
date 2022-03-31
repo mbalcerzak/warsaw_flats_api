@@ -7,7 +7,7 @@ git checkout raspberry-updates
 source venv/bin/activate
 
 python3 /home/pi/Documents/warsaw_flats_api/api/convert_to_json.py
-python3 /home/pi/Documents/warsaw_flats_api/api/price_history.py
+# python3 /home/pi/Documents/warsaw_flats_api/api/price_history.py
 
 git add .
 
